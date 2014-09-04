@@ -240,7 +240,138 @@ namespace Search
                     }
                     break;
                 case false:
-                    
+                    switch (type)                                                                               // Determines which node to hit based on the type
+                    {
+                        case "today":                                                                           // Today - .ininlog
+                            files = dInfo.GetFiles(extension);                                                  // Specifies to only look for .ininlog  files - ignores everything elses
+                            logs.Info("Searching logs in " + sDate + " for " + sSearchTerm);                    // Logs to console & files
+                            Console.WriteLine("");                                                              // New line console
+                            try
+                            {
+                                foreach(FileInfo file in files)
+                                {
+                                    try
+                                    {
+                                        Stream strmTemp = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);   // Temporary file stream
+                                        StreamReader strmReader = new StreamReader(strmTemp);                                                   // Reads the stream from strmTemp
+                                        String line;                                                                                            // Cursor
+
+                                        while ((line = strmReader.ReadLine()) != null)                                                          // Reads until there is no more data
+                                        {
+                                            if (line.Contains(sSearchTerm))                                                                     // Does the current line contain the Search Term?
+                                            {
+                                                logs.Info("{0} contains \"{1}\"", file.Name, sSearchTerm);                                      // Add to console display
+                                                logList.Add(file.Name);                                                                         // Add to array
+                                                break;                                                                                          // Stop and move onto the next file    
+                                            }
+                                        }
+                                    }
+                                    catch (UnauthorizedAccessException ae)                                              // Catches unauthorized access messages
+                                    {
+                                        logs.Fatal(ae.Message);                                                         // Logs to console & files
+                                    }
+                                    catch (SystemException se)                                                          // Catches system execptions
+                                    {
+                                        logs.Fatal(se.Message);                                                         // Logs to console & files
+                                    }
+                                    catch (ApplicationException ape)                                                    // Catches application exceptions
+                                    {
+                                        logs.Fatal(ape.Message);                                                        // Logs to console & files
+                                    }
+                                    catch (Exception e)                                                                 // Catches exceptions
+                                    {
+                                        logs.Fatal(e.Message);                                                          // Logs to console & files
+                                    }
+                                }
+                            }
+                            catch (UnauthorizedAccessException ae)                                              // Catches unauthorized access messages
+                            {
+                                logs.Fatal(ae.Message);                                                         // Logs to console & files
+                            }
+                            catch (SystemException se)                                                          // Catches system execptions
+                            {
+                                logs.Fatal(se.Message);                                                         // Logs to console & files
+                            }
+                            catch (ApplicationException ape)                                                    // Catches application exceptions
+                            {
+                                logs.Fatal(ape.Message);                                                        // Logs to console & files
+                            }
+                            catch (Exception e)                                                                 // Catches exceptions
+                            {
+                                logs.Fatal(e.Message);                                                          // Logs to console & files
+                            }
+                            break;                                                                              // Stop the code from hitting the next case
+                        case "nottoday":                                                                        // Not today - .zip
+                            files = dInfo.GetFiles(extension);                                                  // Specifies to only look for .ininlog  files - ignores everything elses
+                            logs.Info("Searching logs in " + sDate + " for " + sSearchTerm);                    // Logs to console & files
+                            Console.WriteLine("");                                                              // New line console
+                            try
+                            {
+                                foreach(var file in files)
+                                {
+                                    using (ZipFile archive = ZipFile.Read(file.FullName))                       // Loads the current zip
+                                    {
+                                        foreach(var entry in archive)
+                                        {
+                                            if (entry.FileName.EndsWith(".ininlog", StringComparison.OrdinalIgnoreCase))     // Looks for only files that have a .ininlog extension
+                                            {
+                                                try
+                                                {
+                                                    using (var tmpStream = entry.OpenReader())
+                                                    using (var strmReader = new StreamReader(tmpStream))
+                                                    {
+                                                        String line;                                                                                            // Cursor
+
+                                                        while ((line = strmReader.ReadLine()) != null)                                                          // Reads until there is no more data
+                                                        {
+                                                            if (line.Contains(sSearchTerm))                                                                     // Does the current line contain the Search Term?
+                                                            {
+                                                                logs.Info("{0} contains \"{1}\"", file.Name, sSearchTerm);                                      // Add to console display
+                                                                logList.Add(file.Name);                                                                         // Add to array
+                                                                break;                                                                                          // Stop and move onto the next file    
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                catch (UnauthorizedAccessException ae)                                              // Catches unauthorized access messages
+                                                {
+                                                    logs.Fatal(ae.Message);                                                         // Logs to console & files
+                                                }
+                                                catch (SystemException se)                                                          // Catches system execptions
+                                                {
+                                                    logs.Fatal(se.Message);                                                         // Logs to console & files
+                                                }
+                                                catch (ApplicationException ape)                                                    // Catches application exceptions
+                                                {
+                                                    logs.Fatal(ape.Message);                                                        // Logs to console & files
+                                                }
+                                                catch (Exception e)                                                                 // Catches exceptions
+                                                {
+                                                    logs.Fatal(e.Message);                                                          // Logs to console & files
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            catch (UnauthorizedAccessException ae)                                              // Catches unauthorized access messages
+                            {
+                                logs.Fatal(ae.Message);                                                         // Logs to console & files
+                            }
+                            catch (SystemException se)                                                          // Catches system execptions
+                            {
+                                logs.Fatal(se.Message);                                                         // Logs to console & files
+                            }
+                            catch (ApplicationException ape)                                                    // Catches application exceptions
+                            {
+                                logs.Fatal(ape.Message);                                                        // Logs to console & files
+                            }
+                            catch (Exception e)                                                                 // Catches exceptions
+                            {
+                                logs.Fatal(e.Message);                                                          // Logs to console & files
+                            }
+                            break;
+                    }
                     break;
             }
         }
