@@ -42,17 +42,15 @@ namespace Search
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException); // Handles unhandled Exception errors
             Console.ResetColor();                                                                   // Resets the console display color
             Console.ForegroundColor = ConsoleColor.Green;                                           // Sets the console display color to green
-            Console.WriteLine("Enter date to search");                                              
-            Console.WriteLine("yyyy-mm-dd format");
+            Console.WriteLine("Enter date to search - [yyyy-mm-dd]");                                              
             Console.ResetColor();                                                                   // Resets the console display color
             sDate = Console.ReadLine();                                                             // Add's the inputed value to sDate
             Console.ForegroundColor = ConsoleColor.Cyan;                                            // Sets the console display color to cyan
-            Console.WriteLine("Enter a search term");
-            Console.WriteLine("Interaction ID, Status, Etc.");
+            Console.WriteLine("Enter a search term - [Interaction ID, String, etc]");
             Console.ResetColor();                                                                   // Resets the console display color
             sSearchTerm = Console.ReadLine();                                                       // Add's the inputted value to sSearchTerm
-            Console.ForegroundColor = ConsoleColor.Blue;                                            // Sets the console display color to blue
-            Console.WriteLine("Enter email address");
+            Console.ForegroundColor = ConsoleColor.Magenta;                                         // Sets the console display color to blue
+            Console.WriteLine("Enter email address - [Optional will send list of found logs]");
             Console.ResetColor();                                                                   // Resets the console display color
             sEmailAddress = Console.ReadLine();                                                     // Add's the inputted value to sEmailAddress
             sFullLogPath = sLogPath + "\\" + sDate + "\\";                                          // Combines the sLogPath with the entered sDate
