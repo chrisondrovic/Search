@@ -11,6 +11,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
+using System.Threading;
 namespace Search
 {
     internal class Program
@@ -111,9 +112,14 @@ namespace Search
             Console.WriteLine("");                                                                  // New line in console
             Console.WriteLine("");                                                                  // New line in console
             Console.WriteLine("Search has finished");
-            Console.WriteLine("Press any key to exit.");
             Console.ResetColor();                                                                   // Resets the console display color
-            Console.ReadKey();                                                                      // Wait for user input to close window
+            Console.ForegroundColor = ConsoleColor.Red;                                             // Sets the console display color to red
+            Console.WriteLine("");                                                                  // New line in console
+            for (int c = 9; c >= 0; c--)                                                            // Simple 9 second countdown, then application closes
+            {
+                Console.Write("\rApplication will close in {0}", c);
+                System.Threading.Thread.Sleep(1000);
+            } 
         }
 
         /// <summary>
