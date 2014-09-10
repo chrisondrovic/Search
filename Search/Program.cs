@@ -8,7 +8,9 @@ using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 using System.Configuration;
-
+using System.Diagnostics;
+using System.Security.Cryptography.X509Certificates;
+using System.Net.Security;
 namespace Search
 {
     internal class Program
@@ -23,6 +25,16 @@ namespace Search
         private static string sRawLogExtension = "*.ininlog";                                       // Holds the raw log file extension
         private static string sCompressedLogExtension = "*.zip";                                    // Hold the compressed log file extension
         private static bool bParallelProcessing;                                                    // Use parallel processing : true - yes | false - no
+        private static string sUserDomain = Environment.UserDomainName;                             // Used to detect the user domain : smtp relays
+        private static int[] _SMTPport = new int[2] { 25, 587 };                                    // SMTP Port Array : 25 | 587
+        private static string[] _SMTPserver = new string[4]
+        {
+            "smtp.admin.inin.local",                                                                // 0 - AD server : SMTP Relay
+            "smtp.caas.local",                                                                      // 1 - CaaS server : SMTP Relay
+            "ex.intu.inin.local",                                                                    // 2 - Intu server : SMTP Relay
+            "smtp.inin.com"                                                                         // 3 - ININ Server : SMTP
+        };
+
         [STAThread]
         static void Main(string[] args)
         {
@@ -51,9 +63,51 @@ namespace Search
             { SearchLogs("nottoday", sCompressedLogExtension); }                                    // If not today search compressed logs
 
             if (string.IsNullOrEmpty(sEmailAddress))                                                // Checks if sEmailAddress is empty
-            { }                                                                                     // If empty skip don't send email
+            { /* Do nothing */ }                                                                    // If empty skip don't send email
             else
-            { }                                                                                     // If sEmailAddress has value Send Email * Works on most servers *
+            { 
+                try
+                {
+                    switch (sUserDomain)                                                            // Analyizes the Domain and processes accordingly
+                    {
+                        case "ad":                                                                  // AD (AdminHub)
+                        case "AD":
+                            Send_Email(_SMTPserver[0], _SMTPport[0], false);                        // Populate the values from the arrays
+                            break;
+
+                        case "caas":                                                                // CaaS
+                        case "CAAS":
+                        case "remote":                                                              // Remote
+                        case "REMOTE":
+                            Send_Email(_SMTPserver[1], _SMTPport[1], false);                        // Populate the values from the arrays
+                            break;
+                        
+                        case "intu":                                                                // Intu
+                        case "INTU":
+                            Send_Email(_SMTPserver[2], _SMTPport[1], true);                         // Populate the values from the arrays
+                            break;
+                        default:
+                            Send_Email(_SMTPserver[3], _SMTPport[0], false);                        // Populates the values from arrays
+                            break;
+                    }
+                }
+                catch (UnauthorizedAccessException ae)                                              // Catches unauthorized access messages
+                {
+                    logs.Fatal(ae.Message);                                                         // Logs to console & files
+                }
+                catch (SystemException se)                                                          // Catches system execptions
+                {
+                    logs.Fatal(se.Message);                                                         // Logs to console & files
+                }
+                catch (ApplicationException ape)                                                    // Catches application exceptions
+                {
+                    logs.Fatal(ape.Message);                                                        // Logs to console & files
+                }
+                catch (Exception e)                                                                 // Catches exceptions
+                {
+                    logs.Fatal(e.Message);                                                          // Logs to console & files
+                }
+            }                                                                                     // If sEmailAddress has value Send Email * Works on most servers *
 
             Console.ForegroundColor = ConsoleColor.Gray;                                            // Sets the console display color to gray
             Console.WriteLine("");                                                                  // New line in console
@@ -106,6 +160,7 @@ namespace Search
             switch (bParallelProcessing)                                                                        // Processes based on true | false
             {
                 case true:
+                    logs.Fatal("Parallel Mode");
                     switch (type)                                                                               // Determines which node to hit based on the type
                     {
                         case "today":                                                                           // Today - .ininlog
@@ -114,6 +169,7 @@ namespace Search
                             Console.WriteLine("");                                                              // New line console
                             try
                             {
+                                //var sw = Stopwatch.StartNew();
                                 Parallel.ForEach(files, file =>                                                 // Parallel processing
                                 {
                                     try
@@ -131,6 +187,7 @@ namespace Search
                                                 break;                                                                                          // Stop and move onto the next file    
                                             }
                                         }
+                                        
                                     }
                                     catch (UnauthorizedAccessException ae)                                              // Catches unauthorized access messages
                                     {
@@ -240,6 +297,7 @@ namespace Search
                     }
                     break;
                 case false:
+                    logs.Fatal("Normal Mode");
                     switch (type)                                                                               // Determines which node to hit based on the type
                     {
                         case "today":                                                                           // Today - .ininlog
@@ -373,6 +431,68 @@ namespace Search
                             break;
                     }
                     break;
+            }
+        }
+        /// <summary>
+        /// Send_s the email.
+        /// </summary>
+        /// <param name="_server">The _server.</param>
+        /// <param name="_port">The _port.</param>
+        /// <param name="_ssl">if set to <c>true</c> [SSL].</param>
+        private static void Send_Email(string _server, int _port, bool _ssl)
+        {
+            StringBuilder emailString = new StringBuilder();                                                    // Creates a StringBuilder for the outgoing email 
+            MailMessage mMessage = new MailMessage();                                                           // Creates a new mail message object
+
+            SmtpClient smtpClient = new SmtpClient(_server);                                                    // Creates a new smtp client using the passed _server value
+            smtpClient.Port = _port;                                                                            // Assigns the smtpClient port from the _port value
+            smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;                                             // Sets the smtpClient deleviery method to network
+
+            if (_ssl.Equals(true))                                                                              // Checks if there is a SSL connection required
+            { smtpClient.EnableSsl = true; }
+            
+            ServicePointManager.ServerCertificateValidationCallback = delegate(object s, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+            { return true; };
+            
+            mMessage.From = new MailAddress("no-reply@inin.com");                                               // Sets the mMessage.Form to "no-reply@inin.com"
+            mMessage.To.Add(sEmailAddress);                                                                     // Sets the mMessage.To value based sEmailAddress
+
+            mMessage.Subject = "Logs from " + Environment.GetEnvironmentVariable("COMPUTERNAME") + " searched " + sDate + " for " + sSearchTerm;
+            emailString.Append("<p style='font-family:arial,helvetica,sans-serif;'>Here are the file(s) on <b>" + Environment.GetEnvironmentVariable("COMPUTERNAME") + "</b> under <b>" + sDate + "</b> that contain <b><i>" + sSearchTerm + "</i><b></p><br/><br/>");
+            emailString.AppendLine("<table width='100%' border='0' align='center' cellpadding='5' cellspacing='0' style='font-family:arial,helvetica,sans-serif;'><tbody><tr><td style='padding:5px;background-color:rgb(169, 169, 169);color:white;'>Filenames</td></tr>");
+            int count = 0;
+            foreach (var item in logList)
+            {
+                if (count % 2 == 0)
+                {
+                    emailString.AppendLine("<tr><td style='background-color:#bada55;border-collapse:collapse;'>" + Path.GetFileName(item) + "</td></tr>");
+                }
+                else
+                {
+                    emailString.AppendLine("<tr><td style='background-color:#55bada;border-collapse:collapse;'>" + Path.GetFileName(item) + "</td></tr>");
+                }
+                count++;
+            }
+            emailString.Append("</tr></tbody></table>");
+            mMessage.IsBodyHtml = true;
+
+            mMessage.Body = emailString.ToString();
+
+            try
+            {
+                smtpClient.Send(mMessage);
+            }
+            catch (SmtpFailedRecipientsException sres)
+            {
+                logs.Fatal(sres.Message);
+            }
+            catch (SmtpFailedRecipientException sre)
+            {
+                logs.Fatal(sre.Message);
+            }
+            catch (SmtpException se)
+            {
+                logs.Fatal(se.Message);
             }
         }
     }
