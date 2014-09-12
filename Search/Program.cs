@@ -191,7 +191,7 @@ namespace Search
                                                 break;                                                                                          // Stop and move onto the next file    
                                             }
                                         }
-                                        
+                                        logList.Sort();                                                                                         // Sorts list A-Z
                                     }
                                     catch (UnauthorizedAccessException ae)                                              // Catches unauthorized access messages
                                     {
@@ -258,6 +258,7 @@ namespace Search
                                                                break;                                                                                          // Stop and move onto the next file    
                                                            }
                                                        }
+                                                       logList.Sort();                                                                                        // Sorts list A-Z
                                                    }
                                                }
                                                catch (UnauthorizedAccessException ae)                                              // Catches unauthorized access messages
@@ -327,6 +328,7 @@ namespace Search
                                                 break;                                                                                          // Stop and move onto the next file    
                                             }
                                         }
+                                        logList.Sort();                                                                                         // Sorts list A-Z
                                     }
                                     catch (UnauthorizedAccessException ae)                                              // Catches unauthorized access messages
                                     {
@@ -393,6 +395,7 @@ namespace Search
                                                                 break;                                                                                          // Stop and move onto the next file    
                                                             }
                                                         }
+                                                        logList.Sort();                                                                                         // Sorts list A-Z
                                                     }
                                                 }
                                                 catch (UnauthorizedAccessException ae)                                              // Catches unauthorized access messages
