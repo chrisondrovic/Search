@@ -14,6 +14,12 @@ using System.Net.Security;
 using System.Threading;
 namespace Search
 {
+    /// <todo>
+    /// Enter Ticket Number
+    /// Copy the files to the ftp
+    /// Command line switches
+    /// </todo>
+
     internal class Program
     {
         private static string sDate;                                                                // Holds the current log Date
@@ -55,7 +61,7 @@ namespace Search
             Console.ResetColor();                                                                   // Resets the console display color
             sEmailAddress = Console.ReadLine();                                                     // Add's the inputted value to sEmailAddress
             sFullLogPath = sLogPath + "\\" + sDate + "\\";                                          // Combines the sLogPath with the entered sDate
-
+            
             if (sDate.Equals(DateConversion(DateTime.Today.ToString("yyyy-MM-dd"))))                // Checks if the date is today
             { SearchLogs("today", sRawLogExtension); }                                              // If today search raw logs 
             else
