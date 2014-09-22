@@ -26,7 +26,8 @@ namespace Search
         private static string sLogPath = Environment.GetEnvironmentVariable("ININ_TRACE_ROOT");     // Grabs the log path from the ININ_TRACE_ROOT variable
         private static string sSearchTerm;                                                          // Holds the search term
         private static string sFullLogPath;                                                         // Full log with date variable
-        private static string sEmailAddress = null;                                                 // Email address to send file list to                                                                   
+        private static string sEmailAddress = Environment.GetEnvironmentVariable("USERNAME")
+            + "@inin.com";                                                                          // Email address to send file list to                                                                   
         private static List<string> logList = new List<string>();                                   // Stores items found with sSearchTerm in them
         private static Logger logs = LogManager.GetCurrentClassLogger();                            // Console / Log file logging
         private static string sRawLogExtension = "*.ininlog";                                       // Holds the raw log file extension
@@ -56,10 +57,6 @@ namespace Search
             Console.WriteLine("Enter a search term - [Interaction ID, String, etc]");
             Console.ResetColor();                                                                   // Resets the console display color
             sSearchTerm = Console.ReadLine();                                                       // Add's the inputted value to sSearchTerm
-            Console.ForegroundColor = ConsoleColor.Magenta;                                         // Sets the console display color to blue
-            Console.WriteLine("Enter email address - [Optional will send list of found logs]");
-            Console.ResetColor();                                                                   // Resets the console display color
-            sEmailAddress = Console.ReadLine();                                                     // Add's the inputted value to sEmailAddress
             sFullLogPath = sLogPath + "\\" + sDate + "\\";                                          // Combines the sLogPath with the entered sDate
             
             if (sDate.Equals(DateConversion(DateTime.Today.ToString("yyyy-MM-dd"))))                // Checks if the date is today
