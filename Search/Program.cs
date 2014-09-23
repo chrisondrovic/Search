@@ -167,7 +167,7 @@ namespace Search
             switch (bParallelProcessing)                                                                        // Processes based on true | false
             {
                 case true:
-                    logs.Fatal("Parallel Mode");
+                    logs.Fatal("-[ Parallel Mode ]-");
                     switch (type)                                                                               // Determines which node to hit based on the type
                     {
                         case "today":                                                                           // Today - .ininlog
@@ -305,7 +305,7 @@ namespace Search
                     }
                     break;
                 case false:
-                    logs.Fatal("Normal Mode");
+                    logs.Fatal("-[ Normal Mode ]-");
                     switch (type)                                                                               // Determines which node to hit based on the type
                     {
                         case "today":                                                                           // Today - .ininlog
