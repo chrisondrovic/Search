@@ -27,7 +27,7 @@ namespace Search
         private static string sSearchTerm;                                                          // Holds the search term
         private static string sFullLogPath;                                                         // Full log with date variable
         private static string sEmailAddress = Environment.GetEnvironmentVariable("USERNAME")
-            + "@inin.com";                                                                          // Email address to send file list to                                                                   
+            + "@inin.com";                                                                          // Email address to send file list to                                                        
         private static List<string> logList = new List<string>();                                   // Stores items found with sSearchTerm in them
         private static Logger logs = LogManager.GetCurrentClassLogger();                            // Console / Log file logging
         private static string sRawLogExtension = "*.ininlog";                                       // Holds the raw log file extension
@@ -46,6 +46,13 @@ namespace Search
         [STAThread]
         static void Main(string[] args)
         {
+            if (sEmailAddress.Contains("US_"))
+            {
+                sEmailAddress = sEmailAddress.Substring(3, sEmailAddress.Length - 3);
+            }
+            else
+            { }
+            
             bParallelProcessing = Convert.ToBoolean(ConfigurationManager.AppSettings["parallel"]);  // Runs based on value in config file
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException); // Handles unhandled Exception errors
             Console.ResetColor();                                                                   // Resets the console display color
